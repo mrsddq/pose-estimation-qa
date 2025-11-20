@@ -1,0 +1,21 @@
+schema:
+  required_fields: [id, image_id, keypoints, num_keypoints, bbox]
+  min_keypoints: 5
+  max_keypoints: 17
+  min_bbox_area: 100
+
+spatial:
+  max_limb_ratio: 3.0        # max ratio of limb length to body height
+  min_confidence: 0.3        # keypoint visibility threshold
+  bbox_margin: 0.15          # keypoints must be within bbox + margin
+
+temporal:
+  max_velocity_px: 80        # max keypoint movement between adjacent frames
+  min_overlap_iou: 0.3       # min bbox IoU between consecutive frames
+  window_size: 3             # frames to look ahead/behind
+
+output:
+  flag_threshold: 0.5        # fraction of failed checks to flag annotation
+  reject_threshold: 0.8      # fraction of failed checks to auto-reject
+  save_flagged: true
+  save_rejected: true
