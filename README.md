@@ -1,40 +1,31 @@
 # Pose Estimation Annotation QA
 
-Professional annotation quality assurance system for pose estimation datasets. Built for agricultural and biological vision data. Achieved ~30% improvement in dataset precision through spatial and temporal consistency checks.
+Portfolio-ready quality assurance toolkit for pose-estimation annotation datasets.
 
-> This repository contains anonymised workflow code. No client imagery or proprietary data is included.
+The repository focuses on COCO-keypoint validation, spatial consistency checks, temporal consistency checks, and review workflows. It does not include private imagery or unsupported precision-improvement claims.
 
-## Impact
+## Highlights
 
-| Metric | Value |
-|---|---|
-| Dataset precision improvement | ~30% |
-| QA dimensions | Spatial accuracy, temporal consistency, schema compliance |
-| Domain | Agricultural / biological imagery |
-| Annotation format | COCO keypoints |
+- COCO keypoint schema validation
+- Spatial plausibility checks
+- Temporal movement checks for ordered frames
+- Visualization script for flagged cases
+- Evaluation workflow for before/after QA comparison
 
-## QA Pipeline
+## Structure
 
-```
-Raw annotations (COCO keypoints JSON)
-  └─ Schema validation        checks required fields, keypoint count, bbox presence
-       └─ Spatial consistency  flags anatomically implausible keypoint positions
-            └─ Temporal consistency  checks keypoint movement between adjacent frames
-                 └─ Confidence filtering  removes low-confidence keypoints below threshold
-                      └─ QA decision: accept / flag for review / auto-reject
-```
-
-## Quickstart
-
-```bash
-git clone https://github.com/your-username/pose-estimation-qa
-cd pose-estimation-qa
-pip install -r requirements.txt
+```text
+configs/
+  qa.yaml
+scripts/
+  qa/run_qa.py
+  evaluation/evaluate_precision.py
+  visualize/visualize_flags.py
 ```
 
-## Data Format
+## Input Format
 
-Input: COCO-format keypoints JSON.
+COCO-style keypoint annotations:
 
 ```json
 {
@@ -42,8 +33,8 @@ Input: COCO-format keypoints JSON.
     {
       "id": 1,
       "image_id": 42,
-      "keypoints": [x1, y1, v1, x2, y2, v2, ...],
-      "num_keypoints": 17,
+      "keypoints": [x1, y1, v1],
+      "num_keypoints": 1,
       "bbox": [x, y, w, h],
       "score": 0.91
     }
@@ -51,50 +42,30 @@ Input: COCO-format keypoints JSON.
 }
 ```
 
-Place data as:
-```
-data/
-  raw_annotations/    ← original model output JSON files
-  qa_output/          ← QA-filtered annotation JSON files
-```
-
-## Running QA
+## Run QA
 
 ```bash
-# Run full QA pipeline
-python scripts/qa/run_qa.py --input data/raw_annotations/ --output data/qa_output/ --config configs/qa.yaml
-
-# Evaluate precision improvement
-python scripts/evaluation/evaluate_precision.py --before data/raw_annotations/ --after data/qa_output/
-
-# Visualise flagged cases
-python scripts/visualize/visualize_flags.py --annotations data/qa_output/flagged.json
+python -m scripts.qa.run_qa --input data/raw_annotations --output data/qa_output --config configs/qa.yaml
 ```
 
-## Sample Outputs
+## Evaluate
 
-| File | Contents |
-|---|---|
-| `assets/01_qa_workflow.png` | Anonymised QA pipeline flowchart |
-| `assets/02_before_after_qa.png` | Pose skeleton: noisy vs corrected keypoints |
-| `assets/03_precision_summary.png` | Before/after precision improvement chart |
+```bash
+python -m scripts.evaluation.evaluate_precision --before data/raw_annotations --after data/qa_output
+```
 
-## Configuration
+## Visualize
 
-See `configs/qa.yaml` for all QA thresholds — spatial distance limits, temporal velocity caps, confidence cutoffs, and schema rules.
+```bash
+python -m scripts.visualize.visualize_flags --annotations data/qa_output/flagged.json
+```
+
+## Results
+
+No private or verified public QA metrics are committed. Use [docs/QA_REPORT_TEMPLATE.md](docs/QA_REPORT_TEMPLATE.md) to document precision, recall, and reviewer workload changes after running on a labelled dataset.
 
 ## Limitations
 
-- Spatial plausibility checks are heuristic and domain-specific — thresholds tuned for agricultural subjects
-- Temporal checks require sequential frame ordering; shuffled datasets need sorting first
-- No client data included — all examples use public COCO person annotations
-
-## Environment
-
-```
-Python 3.10
-numpy==1.26.0
-opencv-python==4.8.1.78
-pycocotools==2.0.7
-matplotlib==3.8.0
-```
+- Spatial thresholds are domain-specific.
+- Temporal checks require correctly ordered frames.
+- Human review remains necessary for ambiguous cases.
