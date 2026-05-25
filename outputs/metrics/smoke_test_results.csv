@@ -1,0 +1,3 @@
+artifact_type,qa_stage,metric,value,notes
+schema_smoke,keypoint_qa,flagged_precision,requires_reviewer_labels,Real value must come from labelled review data
+schema_smoke,keypoint_qa,required_fields_checked,5,Non-benchmark schema check only

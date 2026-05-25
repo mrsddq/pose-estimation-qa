@@ -1,5 +1,7 @@
 # Pose Estimation Annotation QA
 
+[![CI](https://github.com/mrsddq/pose-estimation-qa/actions/workflows/ci.yml/badge.svg)](https://github.com/mrsddq/pose-estimation-qa/actions/workflows/ci.yml)
+
 Portfolio-ready quality assurance toolkit for pose-estimation annotation datasets.
 
 The repository focuses on COCO-keypoint validation, spatial consistency checks, temporal consistency checks, and review workflows. It does not include private imagery or unsupported precision-improvement claims.
@@ -17,6 +19,12 @@ The repository focuses on COCO-keypoint validation, spatial consistency checks, 
 ```text
 configs/
   qa.yaml
+docs/
+  ABLATION_PLAN.md
+  ARCHITECTURE_RATIONALE.md
+  DEPLOYMENT_NOTES.md
+  QA_REPORT_TEMPLATE.md
+  REPRODUCIBILITY.md
 scripts/
   qa/run_qa.py
   evaluation/evaluate_precision.py
@@ -63,6 +71,15 @@ python -m scripts.visualize.visualize_flags --annotations data/qa_output/flagged
 ## Results
 
 No private or verified public QA metrics are committed. Use [docs/QA_REPORT_TEMPLATE.md](docs/QA_REPORT_TEMPLATE.md) to document precision, recall, and reviewer workload changes after running on a labelled dataset.
+
+Research support docs:
+
+- [Reproducibility Plan](docs/REPRODUCIBILITY.md)
+- [Architecture Rationale](docs/ARCHITECTURE_RATIONALE.md)
+- [Ablation Plan](docs/ABLATION_PLAN.md)
+- [Deployment Notes](docs/DEPLOYMENT_NOTES.md)
+
+`outputs/metrics/smoke_test_results.csv` is a schema artifact only, not a benchmark.
 
 ## Limitations
 
