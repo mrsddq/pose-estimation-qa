@@ -1,3 +1,5 @@
+seed: 42
+
 schema:
   required_fields: [id, image_id, keypoints, num_keypoints, bbox]
   min_keypoints: 5

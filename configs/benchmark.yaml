@@ -1,0 +1,15 @@
+seed: 42
+
+model:
+  name: mediapipe_pose
+  complexity: 1
+  min_confidence: 0.5
+
+data:
+  images_dir: data/coco/val2017
+  annotations: data/coco/annotations/person_keypoints_val2017.json
+
+evaluation:
+  iou_type: keypoints
+  output_json: outputs/metrics/mediapipe_coco_keypoints.json
+  output_csv: outputs/metrics/oks_results.csv

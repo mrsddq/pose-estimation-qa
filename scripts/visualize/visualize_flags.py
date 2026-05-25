@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-SKELETON = [(0,1),(1,2),(2,3),(3,4),(1,5),(5,6),(6,7),(1,11),(11,12),(12,13),(1,8),(8,9),(9,10)]
+SKELETON = [(5,7),(7,9),(6,8),(8,10),(5,6),(5,11),(6,12),(11,12),(11,13),(13,15),(12,14),(14,16),(0,1),(0,2),(1,3),(2,4)]
 
 def draw_skeleton(ax, kps, color="steelblue", alpha=1.0):
     kps = np.array(kps).reshape(-1, 3)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         rect = patches.Rectangle((x,y), w, h, lw=1.5, edgecolor="orange", facecolor="none")
         ax.add_patch(rect)
         draw_skeleton(ax, ann["keypoints"], color="tomato")
-        ax.set_title(f"id={ann["id"]}", fontsize=9)
+        ax.set_title(f"id={ann['id']}", fontsize=9)
         ax.set_xlim(x-20, x+w+20); ax.set_ylim(y+h+20, y-20)
         ax.axis("off")
     plt.suptitle("Flagged Annotations", fontsize=12)
