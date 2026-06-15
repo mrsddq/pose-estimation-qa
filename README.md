@@ -74,6 +74,7 @@ No private or verified public QA metrics are committed. Use [docs/QA_REPORT_TEMP
 
 Research support docs:
 
+- [Portfolio Evidence Plan](docs/PORTFOLIO_EVIDENCE.md)
 - [Reproducibility Plan](docs/REPRODUCIBILITY.md)
 - [Architecture Rationale](docs/ARCHITECTURE_RATIONALE.md)
 - [Ablation Plan](docs/ABLATION_PLAN.md)
