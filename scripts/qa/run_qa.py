@@ -3,13 +3,20 @@ Usage: python scripts/qa/run_qa.py --input data/raw_annotations/ --output data/q
 """
 import argparse, json, yaml, numpy as np
 from pathlib import Path
-from tqdm import tqdm
 
 
 def check_schema(ann, cfg):
     for field in cfg["schema"]["required_fields"]:
         if field not in ann:
             return False, f"missing field: {field}"
+    if not isinstance(ann["keypoints"], list) or len(ann["keypoints"]) % 3 != 0:
+        return False, "keypoints must be a flat list of x/y/visibility triples"
+    if len(ann["keypoints"]) // 3 > cfg["schema"].get("max_keypoints", 17):
+        return False, "too many keypoints"
+    if not isinstance(ann["bbox"], list) or len(ann["bbox"]) != 4:
+        return False, "bbox must contain x, y, width, height"
+    if ann["bbox"][2] * ann["bbox"][3] < cfg["schema"]["min_bbox_area"]:
+        return False, "bbox area is too small"
     if ann["num_keypoints"] < cfg["schema"]["min_keypoints"]:
         return False, "too few keypoints"
     return True, "ok"
@@ -21,6 +28,8 @@ def check_spatial(ann, cfg, img_h, img_w):
     if len(visible) < 2:
         return True, "insufficient visible keypoints to check"
     x1, y1, w, h = ann["bbox"]
+    if x1 < 0 or y1 < 0 or w <= 0 or h <= 0 or x1 + w > img_w or y1 + h > img_h:
+        return False, "bbox is outside image bounds"
     margin = cfg["spatial"]["bbox_margin"]
     for kp in visible:
         if not (x1 - w*margin <= kp[0] <= x1 + w*(1+margin) and
@@ -30,6 +39,11 @@ def check_spatial(ann, cfg, img_h, img_w):
 
 
 def run_qa(inp_dir, out_dir, cfg):
+    try:
+        from tqdm import tqdm
+    except ImportError:
+        tqdm = lambda iterable, **_: iterable
+
     inp_dir, out_dir = Path(inp_dir), Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     accepted, flagged, rejected = [], [], []
