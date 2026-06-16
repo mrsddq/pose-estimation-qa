@@ -1,0 +1,43 @@
+name: Docker Smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - requirements.txt
+      - configs/**
+      - data/**
+      - models/**
+      - scripts/**
+      - tests/**
+      - .github/workflows/docker-smoke.yml
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - requirements.txt
+      - configs/**
+      - data/**
+      - models/**
+      - scripts/**
+      - tests/**
+      - .github/workflows/docker-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  docker-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t pose-estimation-qa:smoke .
+      - name: Show benchmark help
+        run: docker run --rm pose-estimation-qa:smoke --help
+      - name: Run tests in Docker
+        run: docker run --rm --entrypoint python pose-estimation-qa:smoke -m unittest discover -s tests
