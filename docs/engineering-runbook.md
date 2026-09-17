@@ -1,39 +1,47 @@
-﻿# Engineering Runbook
+# Pose annotation QA engineering runbook
 
-## Repository Profile
+This repository validates COCO keypoint schemas and spatial consistency, partitions
+annotations for review, and reports retention. See the
+[README input contract](../README.md#executable-validation-contract),
+[QA command](../README.md#run-qa), and [retention command](../README.md#evaluate).
+Temporal checks are planned; the existing temporal configuration is not executed.
 
-- Repository: $repoName
-- Classification: Python project
-- Tracked files: 27
-- Python files: 11
-- JavaScript/TypeScript files: 0
-- Notebooks: 0
-- Terraform files: 0
+## Local verification
 
-## Setup
+Run from the repository root with Python 3.12:
 
-``bash
-python -m pip install -r requirements.txt
-``
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-test.txt
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m pytest -q
+```
 
-## Verification
+Dependency installation needs package-network access. Once installed, the test
+suite runs on CPU with generated fixtures and does not download model weights or
+datasets. On Windows, activate with `.venv\Scripts\Activate.ps1` in PowerShell
+and run `python -m pytest -q`.
 
-``bash
-python -m unittest discover -s tests
-python -m compileall -q .
-``
+Tests use generated annotations to check malformed schemas, nonfinite values,
+visibility/count consistency, actual image dimensions, missing metadata,
+per-annotation reasons, and reconciliation of accepted/flagged/rejected counts.
+They do not measure QA precision or improvement on a labelled dataset.
 
-## Release Hygiene
+## Data and artifact contract
 
-- Keep generated outputs, caches, local datasets, virtual environments, and dependency folders out of git.
-- Prefer deterministic commands over manual notebook or console-only steps.
-- Document required secrets and environment variables instead of committing them.
-- Keep Dockerfiles, CI workflows, and tests aligned with the actual project stack.
-- Treat learning or reference material honestly as reference material; do not present it as production service code unless it has service-grade tests, deployment, and operations docs.
+- Each input COCO file needs `images` entries with integer IDs and positive width
+  and height. Annotations must refer to that metadata. Visibility is categorical
+  0/1/2, and `num_keypoints` counts points whose visibility is nonzero.
+- Use distinct input and output directories. Keep a copy of source annotations;
+  the pipeline writes `accepted.json`, `flagged.json`, `rejected.json` and
+  `qa_report.json` with review reasons and preserved image/category metadata.
+- Schema errors and missing image metadata are rejected. A spatial failure uses
+  the configured flag/reject thresholds. Review thresholds for the dataset rather
+  than treating them as universally valid anatomy rules.
+- Retention counts only accepted annotations and reconciles all partitions. It
+  is not precision: independently labelled errors are needed for precision/recall.
+- Keep private imagery and annotations outside git. Review generated reports for
+  source identifiers before sharing them; publish only permitted examples.
 
-## Maintenance Checklist
-
-- Review dependencies quarterly.
-- Run tests before every push.
-- Confirm git status --short is clean before packaging.
-- Include .git only when an external submission explicitly requires repository history.
+Human review remains necessary for ambiguous annotations and domain-specific
+spatial judgments. No temporal or precision gain is claimed.

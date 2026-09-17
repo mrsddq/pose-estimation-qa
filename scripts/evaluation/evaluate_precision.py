@@ -1,16 +1,23 @@
-"""Compare annotation quality before and after QA.
-Usage: python scripts/evaluation/evaluate_precision.py --before data/raw_annotations/ --after data/qa_output/
-"""
-import argparse, json
+"""Count retained annotations; precision requires independently labelled ground truth."""
+import argparse
+import json
 from pathlib import Path
 
 
 def count_annotations(folder):
-    total = 0
-    for f in Path(folder).glob("*.json"):
-        data = json.load(open(f))
-        total += len(data.get("annotations", []))
-    return total
+    return sum(len(json.loads(p.read_text(encoding="utf-8")).get("annotations", [])) for p in Path(folder).glob("*.json") if p.name != "qa_report.json")
+
+
+def retention_report(before, after):
+    total = count_annotations(before)
+    counts = {}
+    for status in ("accepted", "flagged", "rejected"):
+        path = Path(after) / f"{status}.json"
+        counts[status] = len(json.loads(path.read_text(encoding="utf-8"))["annotations"])
+    if sum(counts.values()) != total:
+        raise ValueError("QA output count does not match the input annotation count")
+    return {"input": total, **counts, "retention_rate": counts["accepted"] / total if total else None,
+            "precision": None, "note": "Retention is not precision; independent reference labels are required."}
 
 
 if __name__ == "__main__":
@@ -18,11 +25,4 @@ if __name__ == "__main__":
     p.add_argument("--before", required=True)
     p.add_argument("--after", required=True)
     a = p.parse_args()
-    before = count_annotations(a.before)
-    after_acc = count_annotations(str(Path(a.after)))
-    print(f"Before QA: {before} annotations")
-    print(f"After QA (accepted): {after_acc} annotations")
-    if before > 0:
-        removed = before - after_acc
-        print(f"Removed (flagged/rejected): {removed} ({removed/before*100:.1f}%)")
-        print(f"Precision improvement estimate: compute OKS against GT if available")
+    print(json.dumps(retention_report(a.before, a.after), indent=2))
