@@ -4,7 +4,7 @@
 
 Portfolio-ready quality assurance toolkit for pose-estimation annotation datasets.
 
-The repository focuses on COCO-keypoint validation, spatial consistency checks, temporal consistency checks, and review workflows. It does not include private imagery or unsupported precision-improvement claims.
+The repository focuses on COCO-keypoint validation, spatial consistency checks, and review workflows. It does not include private imagery or unsupported precision-improvement claims.
 
 ## Highlights
 
@@ -37,14 +37,14 @@ COCO-style keypoint annotations:
 
 ```json
 {
+  "images": [{"id": 42, "width": 100, "height": 100}],
   "annotations": [
     {
       "id": 1,
       "image_id": 42,
-      "keypoints": [x1, y1, v1],
-      "num_keypoints": 1,
-      "bbox": [x, y, w, h],
-      "score": 0.91
+      "keypoints": [20, 20, 2, 25, 25, 2, 30, 30, 2, 35, 35, 2, 40, 40, 2],
+      "num_keypoints": 5,
+      "bbox": [10, 10, 50, 60]
     }
   ]
 }
