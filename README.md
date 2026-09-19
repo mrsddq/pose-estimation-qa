@@ -4,15 +4,15 @@
 
 Portfolio-ready quality assurance toolkit for pose-estimation annotation datasets.
 
-The repository focuses on COCO-keypoint validation, spatial consistency checks, temporal consistency checks, and review workflows. It does not include private imagery or unsupported precision-improvement claims.
+The repository focuses on COCO-keypoint validation, spatial consistency checks, and review workflows. It does not include private imagery or unsupported precision-improvement claims.
 
 ## Highlights
 
 - COCO keypoint schema validation
 - Spatial plausibility checks
-- Temporal movement checks for ordered frames
+- Explicit per-annotation reasons and partition count reconciliation
 - Visualization script for flagged cases
-- Evaluation workflow for before/after QA comparison
+- Retention reporting that does not confuse retained rows with precision
 
 ## Structure
 
@@ -37,14 +37,14 @@ COCO-style keypoint annotations:
 
 ```json
 {
+  "images": [{"id": 42, "width": 100, "height": 100}],
   "annotations": [
     {
       "id": 1,
       "image_id": 42,
-      "keypoints": [x1, y1, v1],
-      "num_keypoints": 1,
-      "bbox": [x, y, w, h],
-      "score": 0.91
+      "keypoints": [20, 20, 2, 25, 25, 2, 30, 30, 2, 35, 35, 2, 40, 40, 2],
+      "num_keypoints": 5,
+      "bbox": [10, 10, 50, 60]
     }
   ]
 }
@@ -85,5 +85,24 @@ Research support docs:
 ## Limitations
 
 - Spatial thresholds are domain-specific.
-- Temporal checks require correctly ordered frames.
+- Temporal checks are planned, not executed: no track/frame identity contract is implemented.
 - Human review remains necessary for ambiguous cases.
+
+## Executable validation contract
+
+Install `requirements-test.txt` and run `python -m pytest -q` for offline tests.
+Input COCO JSON must include `images` with `id`, `width`, and `height`. The QA
+pipeline uses these dimensions, preserves image/category metadata, rejects
+malformed schemas without attempting unsafe spatial checks, and writes
+`accepted.json`, `flagged.json`, `rejected.json`, and `qa_report.json` with reasons.
+COCO visibility is categorical 0/1/2, not a probability; labelled points must be
+inside the image. Invalid schemas and missing image metadata are rejected.
+Spatial failures contribute one failed check out of two and use configured
+flag/reject thresholds. Existing `temporal` settings are reserved for future work;
+no temporal-precision improvement is claimed.
+
+Before/after evaluation counts only the accepted partition for retention, checks
+that all output partitions reconcile with the input, and deliberately reports
+precision as null. Human ground-truth error labels are required to measure QA
+precision/recall. Synthetic CI fixtures demonstrate these invariants, not a dataset
+quality improvement.

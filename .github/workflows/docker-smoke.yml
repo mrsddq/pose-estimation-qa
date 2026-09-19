@@ -40,4 +40,4 @@ jobs:
       - name: Show benchmark help
         run: docker run --rm pose-estimation-qa:smoke --help
       - name: Run tests in Docker
-        run: docker run --rm --entrypoint python pose-estimation-qa:smoke -m unittest discover -s tests
+        run: docker run --rm --entrypoint python pose-estimation-qa:smoke -m pytest -q
