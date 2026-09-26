@@ -34,3 +34,13 @@ def test_missing_image_metadata_is_rejected(tmp_path):
     source = tmp_path / "in"; source.mkdir()
     (source / "a.json").write_text(json.dumps({"annotations": [ANN]}))
     assert run_qa(source, tmp_path / "out", CFG)["counts"]["rejected"] == 1
+def test_conflicting_image_ids_within_one_file_fail_before_writing(tmp_path):
+    source, output = tmp_path / "in", tmp_path / "out"
+    source.mkdir()
+    payload = {"images": [{"id": 7, "width": 32, "height": 32},
+                          {"id": 7, "width": 100, "height": 100}],
+               "annotations": [ANN]}
+    (source / "a.json").write_text(json.dumps(payload))
+    with pytest.raises(ValueError, match="Conflicting image"):
+        run_qa(source, output, CFG)
+    assert not output.exists()

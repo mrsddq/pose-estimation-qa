@@ -71,10 +71,12 @@ def run_qa(inp_dir, out_dir, cfg):
     images, categories, report, ids = {}, {}, [], set()
     for path in paths:
         payload = json.loads(path.read_text(encoding="utf-8"))
-        image_map = {item["id"]: item for item in payload.get("images", [])}
-        for key, image in image_map.items():
+        image_map = {}
+        for image in payload.get("images", []):
+            key = image["id"]
             if key in images and images[key] != image:
                 raise ValueError(f"Conflicting image metadata for ID {key}")
+            image_map[key] = image
             images[key] = image
         for category in payload.get("categories", []):
             key = category["id"]
